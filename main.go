@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -18,18 +21,37 @@ type Url struct {
 	Created  time.Time `json:"created"`
 }
 
-var urls = []Url{
-	{"1", "Google", "https://www.google.com", "ggl", time.Date(2019, 9, 13, 11, 45, 23, 0, time.Local)},
-	{"2", "Facebook", "https://www.facebook.com", "fb", time.Date(2019, 9, 13, 11, 45, 23, 0, time.Local)},
-	{"3", "Youtube", "https://www.youtube.com", "ytb", time.Date(2019, 9, 13, 11, 45, 23, 0, time.Local)},
+var urls []Url
+
+const urlsFile = "urls.json"
+
+func saveUrls() {
+	jsonUrls, _ := json.Marshal(urls)
+	os.WriteFile(urlsFile, jsonUrls, 0644)
+}
+
+func loadUrls() {
+	jsonUrls, _ := os.ReadFile(urlsFile)
+	json.Unmarshal(jsonUrls, &urls)
 }
 
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/shorten", shorten).Methods("POST")
 	r.HandleFunc("/delete/{id}", deleteUrl).Methods("DELETE")
-	r.HandleFunc("/urls", listUrls).Methods("GET")
+	//r.HandleFunc("/urls", listUrls).Methods("GET")
 	r.HandleFunc("/{url}", redirect).Methods("GET")
+
+	loadUrls()
+
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		saveUrls()
+		fmt.Println("Server stopped")
+		os.Exit(0)
+	}()
 
 	fmt.Println("Server started on port 8080")
 	http.ListenAndServe(":8080", r)
@@ -40,7 +62,7 @@ func shorten(w http.ResponseWriter, r *http.Request) {
 	var u Url
 	_ = json.NewDecoder(r.Body).Decode(&u)
 
-	u.Id = randomString(80)
+	u.Id = randomString(100)
 	u.ShortUrl = randomString(6)
 	dt := time.Now()
 	u.Created = dt
@@ -72,10 +94,10 @@ func redirect(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 }
 
-func listUrls(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(urls)
-}
+// func listUrls(w http.ResponseWriter, r *http.Request) {
+// 	w.Header().Set("Content-Type", "application/json")
+// 	json.NewEncoder(w).Encode(urls)
+// }
 
 func randomString(n int) string {
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
