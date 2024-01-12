@@ -15,7 +15,6 @@ import (
 
 type Url struct {
 	Id       string    `json:"id"`
-	Name     string    `json:"name"`
 	Url      string    `json:"url"`
 	ShortUrl string    `json:"shortUrl"`
 	Created  time.Time `json:"created"`
@@ -38,8 +37,8 @@ func loadUrls() {
 func main() {
 	r := mux.NewRouter()
 	r.PathPrefix("/ui").Handler(http.StripPrefix("/ui", http.FileServer(http.Dir("ui"))))
-	r.HandleFunc("/shorten", shorten).Methods("POST")
-	r.HandleFunc("/delete/{id}", deleteUrl).Methods("DELETE")
+	r.HandleFunc("/api/shorten", shorten).Methods("POST")
+	r.HandleFunc("/api/delete/{id}", deleteUrl).Methods("DELETE")
 	//r.HandleFunc("/urls", listUrls).Methods("GET")
 	r.HandleFunc("/{url}", redirect).Methods("GET")
 
