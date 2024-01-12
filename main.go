@@ -37,6 +37,7 @@ func loadUrls() {
 
 func main() {
 	r := mux.NewRouter()
+	r.PathPrefix("/ui").Handler(http.StripPrefix("/ui", http.FileServer(http.Dir("ui"))))
 	r.HandleFunc("/shorten", shorten).Methods("POST")
 	r.HandleFunc("/delete/{id}", deleteUrl).Methods("DELETE")
 	//r.HandleFunc("/urls", listUrls).Methods("GET")
@@ -67,13 +68,6 @@ func shorten(w http.ResponseWriter, r *http.Request) {
 	dt := time.Now()
 	u.Created = dt
 
-	for _, n := range urls {
-		if n.Url == u.Url {
-			w.WriteHeader(http.StatusConflict)
-			w.Write([]byte("Url already exists"))
-			return
-		}
-	}
 	urls = append(urls, u)
 
 	w.WriteHeader(http.StatusCreated)
@@ -86,7 +80,7 @@ func redirect(w http.ResponseWriter, r *http.Request) {
 
 	for _, u := range urls {
 		if u.ShortUrl == url {
-			http.Redirect(w, r, u.Url, http.StatusMovedPermanently)
+			http.Redirect(w, r, u.Url, http.StatusFound)
 			return
 		}
 	}
