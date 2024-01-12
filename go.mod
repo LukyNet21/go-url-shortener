@@ -1,4 +1,4 @@
-module github.com/LukyNet21/go-url-shortener.git
+module github.com/LukyNet21/go-url-shortener
 
 go 1.21.4
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -61,6 +62,12 @@ func shorten(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var u Url
 	_ = json.NewDecoder(r.Body).Decode(&u)
+
+	// add url format validation
+	if _, err := url.ParseRequestURI(u.Url); err != nil {
+		http.Error(w, "Invalid url format", http.StatusBadRequest)
+		return
+	}
 
 	u.Id = randomString(100)
 	u.ShortUrl = randomString(6)
@@ -119,5 +126,5 @@ func deleteUrl(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	w.WriteHeader(http.StatusNotFound)
+	http.Error(w, "Invalid id", http.StatusBadRequest)
 }

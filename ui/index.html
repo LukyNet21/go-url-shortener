@@ -1,68 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>URL Shortener</title>
-</head>
-<body>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #333;
+      }
+
+      h2 {
+        color: #fff;
+      }
+
+      form {
+        background-color: #222;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      input[type="text"] {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+      }
+
+      button[type="submit"] {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      p {
+        background-color: #222;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        color: #fff;
+      }
+
+      p a {
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
     <section>
-        <h2>Create new url</h2>
-        <form id="new-url-form">
-            <input type="text" name="url" placeholder="Enter URL">
-            <button type="submit">Shorten</button>
-        </form>
-        <p id="new-url-content"></p>
+      <h2>Create new url</h2>
+      <form id="new-url-form">
+        <input type="text" name="url" placeholder="Enter URL" />
+        <button type="submit">Shorten</button>
+      </form>
+      <p id="new-url-content" style="display: none;"></p>
     </section>
     <section>
-        <h2>Delete</h2>
-        <form id="delete-url-form">
-            <input type="text" name="id" placeholder="Enter ID">
-            <button type="submit">Delete</button>
-        </form>
-        <p id="delete-url-content"></p>
+      <h2>Delete</h2>
+      <form id="delete-url-form">
+        <input type="text" name="id" placeholder="Enter ID" />
+        <button type="submit">Delete</button>
+      </form>
+      <p id="delete-url-content" style="display: none;"></p>
     </section>
     <script>
-        const form = document.getElementById('new-url-form');
-        const content = document.getElementById('new-url-content');
-        form.addEventListener('submit', (e) => {
+        const form = document.getElementById("new-url-form");
+        const content = document.getElementById("new-url-content");
+        form.addEventListener("submit", (e) => {
             e.preventDefault();
             const url = form.url.value;
             fetch("http://localhost:8080/api/shorten", {
-                method: "POST",
-                body: JSON.stringify({
-                    url: url
-                }),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            }).then((response) => {
-                return response.json();
-            }).then((data) => {
-                content.innerHTML = `Your shortened URL is: <a href="http://localhost:8080/${data.shortUrl}" target="_blank">http://localhost:8080/${data.shortUrl}</a>, <br>and your id is '${data.id}' (save this for future url deletion)`
-                form.url.value = ""
-            }).catch((err) => {
-                console.log(err);
+            method: "POST",
+            body: JSON.stringify({
+                url: url,
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+            },
             })
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                content.innerHTML = `Your shortened URL is: <a href="http://localhost:8080/${data.shortUrl}" target="_blank">http://localhost:8080/${data.shortUrl}</a>, <br>and your id is '${data.id}' (save this for future url deletion)`;
+                form.url.value = "";
+                content.style.display = "block";
+            })
+            .catch((err) => {
+                content.innerHTML = err;
+                console.log(err);
+                content.style.display = "block";
+            });
+        });
 
-        })
-
-        const deleteForm = document.getElementById('delete-url-form');
-        const deleteContent = document.getElementById('delete-url-content');
-        deleteForm.addEventListener('submit', (e) => {
+        const deleteForm = document.getElementById("delete-url-form");
+        const deleteContent = document.getElementById("delete-url-content");
+        deleteForm.addEventListener("submit", (e) => {
             e.preventDefault();
             const id = deleteForm.id.value;
             fetch(`http://localhost:8080/api/delete/${id}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            }).then((data) => {
-                deleteContent.innerHTML = `Your url with id ${id} was deleted`
-                deleteForm.id.value = ""
+            method: "DELETE",
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+            },
             })
+            .then((data) => {
+                deleteContent.innerHTML = `Your url with id ${id} was deleted`;
+                deleteForm.id.value = "";
+                deleteContent.style.display = "block";
+            }).catch((err) => {
+                deleteContent.innerHTML = err;
+                console.log(err);
+                deleteContent.style.display = "block";
+            });
         })
-
     </script>
-</body>
+  </body>
 </html>
