@@ -41,7 +41,7 @@ func main() {
 	r.HandleFunc("/api/shorten", shorten).Methods("POST")
 	r.HandleFunc("/api/delete/{id}", deleteUrl).Methods("DELETE")
 	//r.HandleFunc("/urls", listUrls).Methods("GET")
-	r.HandleFunc("/{url}", redirect).Methods("GET")
+	r.HandleFunc("/short/{url}", redirect).Methods("GET")
 
 	loadUrls()
 

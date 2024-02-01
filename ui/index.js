@@ -16,7 +16,7 @@ const form = document.getElementById("new-url-form");
                 return response.json();
             })
             .then((data) => {
-                content.innerHTML = `Your shortened URL is: <a href="http://localhost:8080/${data.shortUrl}" target="_blank">http://localhost:8080/${data.shortUrl}</a>, <br>and your id is '${data.id}' (save this for future url deletion)`;
+                content.innerHTML = `Your shortened URL is: <a href="http://localhost:8080/short/${data.shortUrl}" target="_blank">http://localhost:8080/short/${data.shortUrl}</a>, <br>and your id is '${data.id}' (save this for future url deletion)`;
                 form.url.value = "";
                 content.style.display = "block";
             })
